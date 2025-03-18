@@ -1,15 +1,10 @@
 #include "Expression.hpp"
 #include "tclap/CmdLine.h"
+
+#include <complex>
 #include <iostream>
 #include <sstream>
 
-std::istream &operator>>(std::istream &is, std::pair<std::string, double> &p) {
-    std::stringbuf buf{};
-    is.get(buf, '=');
-    is.get();
-    p.first = buf.str();
-    return is >> p.second;
-}
 
 int main(int argc, char** argv) {
     TCLAP::CmdLine cmd("A simple calculator with differentiation support", ' ', "0.1");
@@ -25,7 +20,7 @@ int main(int argc, char** argv) {
     cmd.add(by_arg);
     cmd.add(complex_arg);
 
-    TCLAP::UnlabeledMultiArg<std::pair<std::string, double>> args("vars", "Variable values", false, "name=value");
+    TCLAP::UnlabeledMultiArg<std::string> args("vars", "Variable values", false, "name=value");
 
     cmd.add(args);
     cmd.parse(argc, argv);
@@ -39,10 +34,18 @@ int main(int argc, char** argv) {
             try {
                 expression::Expression<std::complex<double>> expr(eval_arg.getValue());
 
-                std::vector<std::pair<std::string, double>> vars = args.getValue();
+                std::vector<std::string> vars = args.getValue();
                 std::unordered_map<std::string, std::complex<double>> var_map;
-                for (const auto& [c, v] : vars) {
-                    var_map[c] = std::complex<double>(v, 0);
+                for (const auto &var : vars) {
+                    std::stringbuf buf{};
+                    std::istringstream is(var);
+                    is.get(buf, '=');
+                    is.get();
+
+                    std::string name = buf.str();
+                    double value;
+                    is >> value;
+                    var_map[name] = std::complex(value, 0.0);
                 }
 
 
@@ -60,8 +63,19 @@ int main(int argc, char** argv) {
             try {
                 expression::Expression<double> expr(eval_arg.getValue());
 
-                std::vector<std::pair<std::string, double>> vars = args.getValue();
-                std::unordered_map<std::string, double> var_map(vars.begin(), vars.end());
+                std::vector<std::string> vars = args.getValue();
+                std::unordered_map<std::string, double> var_map;
+                for (const auto &var : vars) {
+                    std::stringbuf buf{};
+                    std::istringstream is(var);
+                    is.get(buf, '=');
+                    is.get();
+
+                    std::string name = buf.str();
+                    double value;
+                    is >> value;
+                    var_map[name] = value;
+                }
 
                 double result = expr.evaluate(var_map);
                 std::cout << result << std::endl;
@@ -83,10 +97,20 @@ int main(int argc, char** argv) {
         try {
             expression::Expression<double> expr(diff_arg.getValue());
 
-            std::vector<std::pair<std::string, double>> vars = args.getValue();
-            for (const auto& [name, value] : vars) {
+            std::vector<std::string> vars = args.getValue();
+            std::unordered_map<std::string, std::complex<double>> var_map;
+            for (const auto &var : vars) {
+                std::stringbuf buf{};
+                std::istringstream is(var);
+                is.get(buf, '=');
+                is.get();
+
+                std::string name = buf.str();
+                double value;
+                is >> value;
                 expr.substitute(name, value);
             }
+
             auto result = expr.differentiate(by_arg.getValue());
             std::cout << result.to_string() << std::endl;
         } catch (const expression::ParseError &e) {
