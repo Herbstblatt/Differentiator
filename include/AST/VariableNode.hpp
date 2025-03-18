@@ -33,7 +33,7 @@ namespace expression {
         }
 
         T evaluate(std::unordered_map<std::string, T> symbols) const override {
-            if (!symbols.contains(m_name)) {
+            if (symbols.count(m_name) == 0) {
                 throw SymbolsUnspecified("Unable to evaluate: missing required symbol " + m_name);
             }
             return symbols[m_name];
