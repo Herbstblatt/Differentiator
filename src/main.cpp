@@ -47,8 +47,11 @@ int main(int argc, char** argv) {
                     is >> value;
                     double imag{};
                     if (is.peek() == '+' || is.peek() == '-') {
-                        is.get();
+                        char symbol = is.get();
                         is >> imag;
+                        if (is == '-') {
+                            imag = -imag;
+                        }
                         is.get();
                     } else {
                         imag = 0;
