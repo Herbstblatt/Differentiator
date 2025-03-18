@@ -45,7 +45,15 @@ int main(int argc, char** argv) {
                     std::string name = buf.str();
                     double value;
                     is >> value;
-                    var_map[name] = std::complex(value, 0.0);
+                    double imag{};
+                    if (is.peek() == '+' || is.peek() == '-') {
+                        is.get();
+                        is >> imag;
+                        is.get();
+                    } else {
+                        imag = 0;
+                    }
+                    var_map[name] = std::complex(value, imag);
                 }
 
 

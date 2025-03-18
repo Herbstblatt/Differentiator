@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../UnaryOpNode.hpp"
+#include "exceptions.h"
 #include <cmath>
 #include <complex>
 
@@ -22,6 +23,9 @@ namespace expression {
         }
 
         T apply(T operand) const override {
+            if (operand == T(0)) {
+                throw DefAreaViolation("Unable to calculate logarithm");
+            }
             return std::log(operand);
         }
 
