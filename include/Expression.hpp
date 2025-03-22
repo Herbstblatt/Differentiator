@@ -13,7 +13,7 @@ namespace expression {
     public:
         explicit Expression(char literal);
         explicit Expression(T number);
-        explicit Expression(std::string_view expr);
+        explicit Expression(std::string_view string);
     
         Expression(const Expression& other);
         Expression& operator=(const Expression& other);

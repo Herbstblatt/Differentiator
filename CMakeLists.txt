@@ -9,3 +9,7 @@ include_directories(include
     external)
 
 add_executable(differentiator src/main.cpp)
+add_executable(test-file src/test.cpp)
+add_custom_target(test
+        ./test
+        DEPENDS test-file)
